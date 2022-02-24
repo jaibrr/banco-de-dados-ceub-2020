@@ -1,0 +1,168 @@
+use aulas_db;
+
+use tb_empregaodo;
+
+INSERT INTO tb_empregado(identidade, nome, sobrenome, dta_nascimento, dta_inicio, 
+cod_gerente, cargo, cod_dpto, salario, pct_comissao) VALUES (
+1234567, 'Nadia', 'Souza', '1990-08-20', '2020-08-20', 1, 'Analista', 32, 3000, 0), (
+7654321,'Renata', 'Ingrata', '1995-03-10', '2020-02-28', 3, 'Assistente', 42, 1500, 0), (
+1122334,'Regis', 'Lali', '1987-02-23', '2015-04-12', null, 'Gerente', 42, 8000, null), (
+9988273,'Wagner', 'Caixeta', '1982-01-23', '2012-05-12', null, 'Presidente', 41, 19000, 0), (
+8123781,'Leonardo', 'Freitas', '1996-07-29', '2018-11-11', 1, 'Estagiário', 32, 900, 0), (
+2364783,'Erica', 'Moraes', '1990-02-19', '2014-10-01', 7, 'Vendedor', 43, 1900, 10), (
+9187239,'Amanda', 'Lopes', '1987-03-09', '2011-10-12', null, 'Gerente', 43, 9000, 0),(
+2345344,'Joana', 'Dias', '2001-08-09', '2019-11-12', 5, 'Estagiário', 44, 900, 0), (
+1278381,'Ale', 'Pol', '1992-03-12', '2014-10-10', 5, 'Analista', 44, 4000, 0), (
+8378438,'Moar', 'Perr', '1999-03-24', '2011-04-10', 6, 'Estagiário', 50, 1000, 0),(
+3958943,'Ruan', 'Kisl', '1991-07-12', '2020-10-10', 6, 'Analista', 50, 46000, null), (
+1238912,'Kit', 'Herrignton', '1985-03-29', '2016-09-10', 6, 'Vendedor', 50, 19000, 10); 
+
+-- gerente do dpto = 42 tem o idt = 3 ; gerente do dpto = 43 tem o idt = 7
+set SQL_SAFE_UPDATES=0;
+/*update tb_empregado
+set column1 = value1
+where cond;*/
+
+set SQL_SAFE_UPDATES=1;
+
+-- 1- Selecione todas as linhas e colunas da tabela empregado
+select * 
+from tb_empregado;
+
+-- 2- Selecione o nome, o cargo e o salário de todos os funcionários da empresa.
+select nome, cargo, salario
+from tb_empregado;
+
+-- 3- Refaça a pesquisa anterior, classificando-a pelo cargo em ordem crescente. Ordene de duas maneiras.
+select nome, cargo, salario
+from tb_empregado
+order by cargo asc;
+
+select nome, cargo, salario
+from tb_empregado
+order by cargo desc;
+
+-- 4- Selecione os cargos existentes, mostre cada cargo uma única vez. Classifique em ordem decrescente.
+select distinct cargo
+from tb_empregado
+order by cargo desc;
+
+-- 5- Selecione a identidade, o nome, a data de contratação e o salário dos funcionários que ganham mais de R$ 2000,00.
+select identidade, nome, dta_inicio, salario 
+from tb_empregado
+where salario  > 2000;
+
+-- 6- Selecione o sobrenome dos funcionários do departamento 50, que tenham salário maior que R$ 3000,00.
+select sobrenome
+from tb_empregado
+where (cod_dpto = 50 and salario  > 3000);
+
+/* 7- Selecione o sobrenome, a data de contratação e o salário dos funcionários que ganham R$ 1000,00 ou mais, e 
+menos que R$ 3000,00. */
+select sobrenome, dta_inicio, salario
+from tb_empregado
+where (salario  >= 10000 or salario  < 3000 )
+order by salario desc;
+
+
+/* 8- Selecione a identidade, o nome, o sobrenome, o cargo e o salário 
+dos funcionários que ganham menos que R$ 2000,00 ou mais que R$ 3000,00 inclusive.*/
+select identidade, nome, sobrenome, cargo, salario
+from tb_empregado
+where (salario  >= 3000 or salario  < 2000 )
+order by salario desc;
+
+-- 9- Refaça a pesquisa anterior, classificando-a pela data de contratação. Faça a ordenação de duas maneiras.
+select identidade, nome, sobrenome, cargo, salario
+from tb_empregado
+where (salario  >= 3000 or salario  < 2000 )
+order by salario asc;
+
+-- 10- Selecione os funcionários com cargo de &quot;vendedor&quot; ou funcionários do departamento 43.
+select cargo, cod_dpto
+from tb_empregado
+where (cod_dpto = 43 or cargo = 'Vendedor');
+
+
+/* 11- Selecione a identidade, o nome, o cargo, o salário e o código do departamento dos funcionários do 
+departamento 44 que ganham R$ 1200,00 ou mais, bem como todos os funcionários do departamento 32.*/
+select identidade, nome, cargo, salario, cod_dpto
+from tb_empregado
+where cod_dpto = 44 and salario >= 1200 or cod_dpto = 32
+order by cod_dpto, salario asc;
+
+/* 12- Selecione a identidade, o nome, o cargo, o salário e o código do departamento dos funcionários do 
+departamento 44 ou dos funcionários do departamento 41. Desses funcionários dos dois departamentos, mostre 
+apenas os que ganham mais que R$ 2400,00. */
+select identidade, nome, cargo, salario, cod_dpto
+from tb_empregado
+where (cod_dpto = 44 or cod_dpto = 41) and salario > 2400
+order by cod_dpto, salario asc;
+
+/*13- Selecione o nome, o salário, o cargo e o código do departamento dos funcionários que ganham mais
+que R$ 1000,00 e, além disso, tenham o cargo de “gerente” ou trabalham no departamento 32.*/
+select nome, salario, cargo, cod_dpto
+from tb_empregado
+where salario > 1000 and (cargo = 'Gerente' or cod_dpto = 32)
+order by cod_dpto, salario asc;
+
+-- 14- Selecione o sobrenome e a data de contratação dos funcionários que tenham comissão nula.
+select sobrenome, dta_inicio,  IFNULL(pct_comissao, 0)
+from tb_empregado;
+
+select sobrenome, dta_inicio, pct_comissao
+from tb_empregado
+where pct_comissao is null;
+
+/*15- Selecione a identidade, o nome e o cargo dos funcionários com cargo de &quot;Presidente&quot; ou &quot;Vendedor&quot;.
+Resolva de duas maneiras.*/
+select identidade, nome, cargo
+from tb_empregado
+where cargo = 'Presidente' or cargo = 'Vendedor';
+
+
+-- 16- Selecione o nome e o sobrenome dos funcionários que não tenham gerente.
+select nome, sobrenome
+from tb_empregado
+where cod_gerente is null;
+
+/*17- Selecione o sobrenome e o código do departamento de todos os funcionários que não trabalham no
+departamento 41. Classifique por sobrenome dentro de cada departamento. Resolva de três maneiras. */
+select sobrenome, cod_dpto
+from tb_empregado
+where cod_dpto <> 41
+order by cod_dpto, sobrenome asc;
+
+select sobrenome, cod_dpto
+from tb_empregado
+where not cod_dpto = 41
+order by cod_dpto, sobrenome asc;
+
+select sobrenome, cod_dpto
+from tb_empregado
+where cod_dpto < 41 or cod_dpto > 41
+order by cod_dpto, sobrenome asc;
+
+-- 18- Selecione o nome, a data de contratação e o departamento dos funcionários contratados depois do dia 21 de março de 2013.
+select nome, dta_inicio
+from tb_empregado
+where dta_inicio > '2013-03-21'
+order by dta_inicio asc;
+
+/*19- Selecione o nome e a data de contratação dos funcionários contratados no ano de 2000. Classifique
+por data de contratação em ordem decrescente. Classifique de duas maneiras.*/
+select nome, dta_inicio
+from tb_empregado
+where dta_inicio >= '2000-01-01'
+order by dta_inicio desc;
+
+select nome, dta_inicio
+from tb_empregado
+where dta_inicio >= '2000-01-01'
+order by dta_inicio asc;
+
+/*20- Selecione o nome, o salário e o código do departamento dos funcionários gerenciados pelo
+funcionário de idt (primary key) 2.*/
+select nome, salario, cargo, cod_dpto, cod_gerente
+from tb_empregado
+where cod_gerente = 3 or cod_gerente = 7;
