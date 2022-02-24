@@ -82,3 +82,175 @@ SELECT CONCAT('O/a aluno/a ', nome_aluno, ' paga R$', ROUND(mensalidade_aluno/qn
 FROM tb_aluno
 WHERE cod_curso_aluno = 1 || cod_curso_aluno = 2 && qntd_disciplina_aluno > 2
 ORDER BY mensalidade_aluno desc;
+
+
+------------------------------------------------------------------------------
+
+/* 
+ ctrl + enter	executar o SQL onde o cursor está
+ ctrl + d		duplica a linha 
+ ctrl + l		apaga a linha				 	
+ ctrl + s		salva o script SQL		   ----- */
+-- 1. Mostre o nome, cargo e salário dos funcionários que ganham menos que a média salarial da empresa.
+-- Classifique pelo salário.
+-- 
+select avg(salario)					# Antes, só a média salarial
+from tb_empregado;
+-- Solução
+select nome, cargo, salario                # main query
+from tb_empregado
+where salario < ( select avg(salario)      # subquery
+                  from tb_empregado )
+order by salario
+;
+-- 2. Mostre o nome e o cargo dos funcionários que tenham o mesmo cargo do funcionário João.
+-- 
+select cargo            			# Antes, só o cargo do João
+from tb_empregado
+where nome = 'João';
+-- Solução
+select nome, cargo                 			# main query
+from tb_empregado
+where cargo in (select cargo                # subquery
+               from tb_empregado
+               where nome = 'João')
+; 	# Usa o in porque pode ter dois funcionários com o mesmo nome e cargos diferentes.
+
+-- 3.a-t. Refaça 6.4. Mostre o código do departamento, nome do departamento e código da região 
+-- onde o funcionário Carlos trabalha. Resolva de duas maneiras (join e subquery).                
+-- 
+select d.idt, d.descricao, d.cod_regiao						# solução 1 com inner join
+from  td_departamento d inner join tb_empregado e     		# 1 pra n
+      on  d.idt = e.cod_dept
+where e.nome = 'Francisco';
+-- 
+select d.idt, d.descricao, d.cod_regiao						# solução 2 com subquery
+from td_departamento d
+where d.idt in (select cod_dept
+                from tb_empregado
+                where nome = 'Francisco' );
+
+-- 3.b. Refaça o exercício anterior para mostra a descrição da região também. 
+-- Resolva de duas maneiras (só join e join junto com subquery).				
+-- 
+select d.idt, d.descricao, d.cod_regiao, r.descricao		# solução 1, só inner join
+from  td_departamento d 
+	inner join tb_empregado e on e.cod_dept = d.idt
+	inner join td_regiao r on d.cod_regiao = r.idt
+where e.nome = 'Francisco';
+--
+select d.idt, d.descricao, d.cod_regiao, r.descricao		# solução 2, só inner join
+from td_departamento d inner join tb_empregado e inner join td_regiao r 
+	on e.cod_dept = d.idt and d.cod_regiao = r.idt
+where e.nome = 'Francisco';
+-- 
+select d.idt, d.descricao, d.cod_regiao, r.descricao		# Solução 3, join junto com subquery
+from td_departamento d inner join td_regiao r
+	on d.cod_regiao = r.idt
+where d.idt in (select cod_dept                 			# subquery
+                from tb_empregado
+                where nome = 'Francisco');
+-- 4-t. Mostre o nome e o salário dos funcionários e o código do gerente dos funcionários que trabalham 
+-- para a Carolina, ou seja, que tenham a Carolina como gerente. Resolva com inner join e subquery.
+-- 
+select f.nome Funcionário, f.salario, g.idt			# inner join com autorrelacionamento
+from tb_empregado f inner join tb_empregado as g
+	on g.idt = f.cod_gerente 
+where g.nome = 'Francisco';
+-- 
+select nome Funcionário, salario, cod_gerente 		# main query
+from tb_empregado
+where cod_gerente = (select idt         			# subquery
+					 from tb_empregado
+					 where nome = 'Francisco');
+-- 5.a. Relacione os funcionários que fazem aniversário no mesmo mês do presidente da empresa.
+-- 
+select nome, dta_nascimento, cargo            		# main query
+from tb_empregado
+where month(dta_nascimento) = (select month(dta_nascimento)    # subquery
+							   from tb_empregado
+							   where cargo = 'presidente' ) 
+; # Esta consulta traz os dados do presidente.
+-- 5.b. Refaça o anterior para não trazer no resultado da consulta os dados do presidente.
+-- 
+select nome, dta_nascimento, cargo            		# main query
+from tb_empregado
+where month(dta_nascimento) = (select month(dta_nascimento)    # subquery
+							   from tb_empregado
+							   where cargo = 'presidente' ) 
+	  and 
+      cargo <> 'Presidente'    # cargo != 'Presidente'                  
+; 
+-- 6-t. Mostre a identidade, o nome e a data de contratação do funcionário mais antigo da empresa. 
+-- Resolva de duas maneiras.
+--
+select identidade, nome, dta_inicio                      	# main query
+from tb_empregado
+where dta_inicio = (select min(dta_inicio) 		 	  		# subquery (mais antigo)
+					from tb_empregado)
+;
+--
+select identidade, nome, dta_inicio
+from tb_empregado
+order by dta_inicio 
+limit 1                  		# Retorna apenas n linha, neste caso uma linha
+;
+-- 7-t. Mostre a identidade, o nome e a data de contratação do funcionário mais novo na empresa. 
+-- Resolva de duas maneiras.
+-- 
+select identidade, nome, dta_inicio                			# main query
+from tb_empregado
+where dta_inicio = (select max(dta_inicio)       			# subquery (mais novo)
+                    from tb_empregado );
+-- 
+select identidade, nome, dta_inicio
+from tb_empregado
+order by dta_inicio desc  
+limit 1
+;
+-- 8. Mostre a identidade, o nome e a data de contratação dos funcionários mais antigo e mais novo da empresa.
+-- Classifique pela data de contratação.
+select identidade, nome, dta_inicio                       # main query
+from tb_empregado 
+where dta_inicio = (select min(dta_inicio) # Mais antigo  # subquery 1
+                    from tb_empregado)
+	  or 
+      dta_inicio = (select max(dta_inicio) # Mais novo    # subquery 2
+                    from tb_empregado)
+order by dta_inicio				
+;
+-- 9. Mostre o nome, o salário e o cargo de todos os funcionários que ganham menos 
+-- que a média salarial da empresa e que tenham o nome começando por ‘m’ ou ‘c’. 
+-- Resolva de duas formas: 1. subquery e like e 2. subquery e regexp.
+-- 
+select identidade, nome, dta_inicio, salario		# main query (solução 1, subquery e like)
+from tb_empregado
+where salario < (select avg(salario)				# subquery
+                 from tb_empregado )
+	  and
+      (nome like 'm%' or nome like 'c%')
+;
+-- Parênteses obrigatórios, por causa da hierarquia dos operadores lógicos: 1. not, 2. and, 3. or.
+-- 
+select identidade, nome, dta_inicio, salario		# main query (solução 2, subquery e regexp)
+from tb_empregado
+where salario < (select avg(salario)				# subquery
+                 from tb_empregado )
+	  and
+      nome regexp ('^[mc]')
+;
+-- 10. Mostre a identidade, o sobrenome, o salário e o código do departamento 
+-- dos funcionários que trabalham em qualquer departamento da região dois. 
+-- Resolva duas formas, com inner join e subquery.
+-- 
+select e.identidade, e.sobrenome, e.salario, e.cod_dept, d.cod_regiao # com join
+from tb_empregado as e inner join td_departamento d 
+	on e.cod_dept = d.idt 
+where d.cod_regiao = 2
+;
+--
+select identidade, sobrenome, salario, cod_dept  	# main query 
+from tb_empregado
+where cod_dept in (select idt                 		# subquery
+                  from td_departamento
+                  where cod_regiao = 2);
