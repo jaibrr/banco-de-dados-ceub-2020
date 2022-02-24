@@ -1,0 +1,84 @@
+/*1- Use o comando SQL apropriado para criar a tabela básica aluno com os seguintes campos: Uma chave primária;
+O RA do aluno sem valores repetidos e com preenchimento obrigatório;
+O nome do aluno com preenchimento obrigatório;
+A data de nascimento com preenchimento obrigatório;
+A quantidade de disciplinas que o aluno está cursando com preenchimento opcional;
+A Mensalidade com preenchimento opcional;
+Código do curso com preenchimento obrigatório;
+Exemplos de código do curso: 1, 2, 3
+1- Ciência da Computação, 2- Análise de Sistema e 3- Engenharia da Computação
+2- Use o comando SQL apropriado para insira pelo menos quatro registros na tabela aluno.*/
+
+CREATE TABLE tb_aluno(
+	idt_aluno				INT				PRIMARY KEY 	AUTO_INCREMENT 	NOT NULL,
+    ra_aluno				VARCHAR(8) 	UNIQUE 							NOT NULL,
+	nome_aluno				VARCHAR(100)									NOT NULL,
+    dta_nascimento_aluno	DATE											NOT NULL,
+    qntd_disciplina_aluno	INT,
+    mensalidade_aluno		DECIMAL(8,2),
+    cod_curso_aluno			INT												NOT NULL
+);
+
+INSERT INTO tb_aluno (ra_aluno, nome_aluno, dta_nascimento_aluno, qntd_disciplina_aluno, mensalidade_aluno, cod_curso_aluno)
+VALUES  ('12345678', 'Vanessa Gomes', '1998-11-22', 5, 1500.00, 1),
+		('87654321', 'Armando Queiroz', '1996-10-02', 3, 600.50, 2),
+        ('12344321', 'Joaquim Romero', '1995-04-09', 4, 1200.00, 3),
+        ('56788765', 'Joana Bezerra', '1997-02-02', 2, 400.50, 2),
+        ('12121212', 'Cristina Soares', '1997-02-02', 5, 1500.50, 3);
+
+/*3- Selecione os alunos do curso 1 ou os alunos do curso 2. Desses alunos dos dois cursos, mostre apenas os alunos 
+que pagam mais que R$ 1.000,00 de mensalidade. Resolva o where de duas maneiras diferentes. Classifique a con-
+sulta pelo nome do aluno dentro de cada curso.*/
+
+SELECT *
+FROM tb_aluno
+#WHERE cod_curso_aluno = 1 || cod_curso_aluno = 2 && mensalidade_aluno > 1000 #primeira forma - o or deve vir entre parentesis pq and tem proceddencia
+WHERE cod_curso_aluno IN (1,2) && mensalidade_aluno > 1000 #segunda forma
+ORDER BY nome_aluno, cod_curso_aluno;
+
+/*4- Selecione os alunos que tenham as letras ‘m’ e ‘o’ em qualquer posição do nome. Nesta solução, não importa
+qual letra vem primeiro. Resolva o where de duas maneiras diferentes:
+- Primeira solução: use like e operador lógico;
+- Segunda solução: use somente regexp, ou seja, não use operador lógico com regexp.*/
+
+SELECT *
+FROM tb_aluno
+#WHERE nome_aluno like '%m%' and nome_aluno like '%o%'; #primeira solução
+WHERE nome_aluno REGEXP ('o.*m|m.*o'); #segunda solução 
+
+/*5- Use uma das funções de expressões regulares e crie um padrão de expressão regular para aceitar os números
+possíveis do jogo mega-sena, ou seja, os seis números no intervalor fechado de 1 a 60. Evite dados inconsistentes.
+Resolva de duas maneiras diferentes.*/
+
+#SELECT '123456' REGEXP ('^[1-60]{6}$') AS numero_mega_sena; #errado
+#SELECT '654321' REGEXP ('^\\d{6}$') AS numero_mega_sena; #errado
+SELECT '3234560123243' 
+REGEXP "(0[1-9]|[1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9]|6[0-9]]{6})$";
+-- REGEXP "^(0[1-9]|[1-5][0-9]|60{6})$";
+-- REGEXP "^(0[1-9]|[1-5][0-9]|60{6})$";
+-- REGEXP "(0[1-9]|[1-5]\\D|60{6}$";
+
+
+/*6- Construa o relatório dos aniversariantes por semestre, a consulta deve retornar o nome do aluno, data de nasci-
+mento e a coluna semestre preenchida com os valores 1 ou 2. Classifique pelo mês de aniversário dentro de cada semestre.*/
+
+SELECT nome_aluno, dta_nascimento_aluno, 
+IF(MONTH(dta_nascimento_aluno) < 7, 1, 2) AS 'semestre'
+FROM tb_aluno
+ORDER BY MONTH(dta_nascimento_aluno), DAY(dta_nascimento_aluno);
+
+/*7- Elabore o enunciado e a resolução de uma questão para ser resolvido com operador de concatenação, operadores
+aritméticos, where com mais de uma condição e order by. Mostre o resultado da operação aritmética com duas casas decimais.
+Obs.: não faça uma questão parecida com as questões desenvolvidas nas aulas.
+quanto mais complexa a elaboração e a resolução da questão mais pontos ela valerá.*/
+
+
+/* Calcule o valor de cada matéria dividindo o valor da mensalidade pela quantidade de matérias e escreva a frase 
+"O/a aluno/a [nome] paga R$ [valor calculado] por matéria e R$ [valor] por mensalidade" e ordene de forma descrescente pelo valor da mensalidade. 
+Selecione os alunos que fazem o curso 1 ou 2 e mais de duas matérias.
+*/
+
+SELECT CONCAT('O/a aluno/a ', nome_aluno, ' paga R$', ROUND(mensalidade_aluno/qntd_disciplina_aluno,2), ' por matéria e R$', mensalidade_aluno, ' por mensalidade')
+FROM tb_aluno
+WHERE cod_curso_aluno = 1 || cod_curso_aluno = 2 && qntd_disciplina_aluno > 2
+ORDER BY mensalidade_aluno desc;
