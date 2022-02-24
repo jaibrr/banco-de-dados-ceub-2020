@@ -1,0 +1,341 @@
+use aulas_db;
+
+select *
+from tb_empregado
+order by nome asc;
+
+insert into tb_empregado (identidade, nome, sobrenome, dta_nascimento, dta_inicio, cod_gerente, cargo, cod_dpto, salario, pct_comissao)
+values (2234579, 'Ana', 'Viana', '1984-01-20', '2005-03-19', 7, 'Analista', 5, 7000, 5.0),
+	   (2224579, 'Anderson', 'Lima', '1980-06-29', '2010-07-30', 3, 'Analista', 5, 7000, 5.0);
+
+insert into tb_empregado (identidade, nome, sobrenome, dta_nascimento, dta_inicio, cod_gerente, cargo, cod_dpto, salario, pct_comissao)
+values (2234578, 'Antônio', 'Queiroz', '1994-06-28', '2015-03-29', 4, 'Coordenador', 3, 9000, 10.0);
+
+insert into tb_empregado (identidade, nome, sobrenome, dta_nascimento, dta_inicio, cod_gerente, cargo, cod_dpto, salario, pct_comissao)
+values (1264558, 'Ursula', 'Romena', '1999-06-28', '2012-03-29', 4, 'Assistente', 5, 1200, 5.0);
+
+insert into tb_empregado (identidade, nome, sobrenome, dta_nascimento, dta_inicio, cod_gerente, cargo, cod_dpto, salario, pct_comissao)
+values (2938476, 'Jaina', 'Barreto', '1992-06-28', '2010-03-29', 0, 'Diretora', 1, 15200, 15.0);
+
+insert into tb_empregado (identidade, nome, sobrenome, dta_nascimento, dta_inicio, cod_gerente, cargo, cod_dpto, salario, pct_comissao)
+values (9826482, 'Igor', 'Ribeiro', '1970-06-28', '2019-03-29', 0, 'Diretor', 4, 15200, 15.0);
+
+insert into tb_empregado (identidade, nome, sobrenome, dta_nascimento, dta_inicio, cod_gerente, cargo, cod_dpto, salario, pct_comissao)
+values  (6236482, 'Bruna', 'Souza', '2002-08-21', '2019-03-12', 5, 'Estagiária', 2, 900,0.0),
+		(9820192, 'Caio', 'Martins', '2003-03-22', '2019-09-20', 5, 'Estagiário', 2, 900, 0.0);
+
+-- Obs.: Substitua todas as colunas envolvidas com expressões por termos mais significativos.
+-- Expressão regular - Regular expression - regexp:
+/*1- Refaça. Selecione o nome e a data de contratação dos funcionários contratados no ano de 2015.
+Classifique por data de contratação em ordem decrescente.*/
+
+select nome, dta_inicio
+from tb_empregado
+where YEAR(dta_inicio) = 2015;
+
+/*2- Refaça. Selecione os registros cujos nomes comecem por uma das letras dentro do intervalo de
+‘c’ até ‘m’. Resolva de duas formas.*/
+
+select nome, dta_inicio
+from tb_empregado
+-- where nome REGEXP'^[C-M]';
+-- where nome between 'c' and 'n'
+where nome rlike('^[c-m]');
+
+
+-- 3- Refaça. Selecione os registros cujo nome comece pela letra ‘a’.
+
+select nome, dta_inicio
+from tb_empregado
+where nome REGEXP'^[A]';
+
+-- 4- Selecione os registros cujo nome comece pela letra ‘A’ maiúscula. Resolva de duas formas.
+
+select *
+from tb_empregado
+#where nome rlike binary ('^A'); #case sensitive (letra maiúscula)
+where nome regexp binary ('^A'); #case sensitive (letra maiúscula)
+
+-- 5- Refaça. Selecione os registros cujo nome não comece pela letra ‘a’. Resolva de duas formas.
+
+select *
+from tb_empregado
+#where not nome REGEXP'^[A]'
+where regexp_like (nome, '^[^A]') #pode ser [] () ou nada em volta do A
+order by nome asc;
+
+-- 6- Selecione os registros cujo nome termine pela letra 'a'.
+
+select *
+from tb_empregado
+where nome regexp ('a$');
+
+-- 7- Selecione os registros cujo nome comece pela sequência de letras "an".
+
+select *
+from tb_empregado
+where nome regexp ('^an');
+#where nome regexp_like (nome, '^an');
+#where nome regexp_like (nome, '^(an)');
+#where nome regexp_like (nome, '^[ an]') ;
+
+-- 8- Selecione os registros cujo nome comece pela letra 'a'; ou pela letra 'n';. Resolva de duas formas.
+
+select *
+from tb_empregado
+#where nome regexp ('^[an]');
+where nome regexp ('^(a|n)');
+
+-- 9- Refaça. Selecione os registros cujo nome comece pela letra ‘a’ e termine pela letra ‘o’. Resolva de duas formas.
+
+select *
+from tb_empregado
+#where nome regexp ('(^a|o$)')
+where nome like 'a%o'
+order by nome;
+
+-- 10- Selecione os registros cujo nome terminem com a letra "a" ou "o". Resolva de duas formas.
+
+select *
+from tb_empregado
+#where nome regexp ('(a$|o$)')
+#where nome like '%o' || nome like '%a'
+where nome rlike ('[ao]$')
+order by nome;
+
+
+-- 11- Refaça. Selecione os registros cujo nome comece por vogal. Resolva de duas maneiras.
+
+select *
+from tb_empregado
+#where nome regexp ('^(a|e|i|o|u)')
+where regexp_like (nome, '^[aeiou]')
+order by nome;
+
+-- 12- Refaça. Selecione os registros cujo nome comece por consoante. Resolva de três maneiras.
+
+select *
+from tb_empregado
+#where not regexp_like (nome, '^[aeiou]')
+#where  regexp_like (nome, '^[^aeiou]')
+where nome regexp '^[^a|^e|^i|^o|^u]'
+order by nome;
+
+-- 13- Refaça. Selecione os funcionários que tenham o termo ‘vend’ fazendo parte da descrição do cargo.
+
+select *
+from tb_empregado
+#where regexp_like (cargo, 'vend')
+where regexp_like (cargo, '(vend)')
+order by nome;
+
+-- 14- Refaça. Selecione os funcionários que tenham o termo ‘dir’ fazendo parte da descrição do cargo e que ganham mais de R$ 2430,00.
+
+select *
+from tb_empregado
+#where regexp_like (cargo, 'dir') and salario > 2430
+where regexp_like (cargo, '(dir)') and salario > 2430
+order by nome;
+
+-- 15- Refaça. Selecione os funcionários que tenham o sobrenome com cinco letras. Resolva de três formas diferentes.
+
+select *
+from tb_empregado
+#where sobrenome like '_____'
+#where regexp_like (sobrenome, '^.....$') 
+#where regexp_like (sobrenome, '^.{5}$')
+#where regexp_like (sobrenome, '^[a-z]{5}$')
+where regexp_like (sobrenome, '^[A-Z]{5}$')
+order by nome;
+
+-- 16- Refaça. Selecione os funcionários, onde o nome tenha a letra ‘r’ na terceira posição de seu nome.
+
+select *
+from tb_empregado
+#where nome like '__r%'
+#where nome rlike ('^..r')
+where regexp_like (nome, '^.{2}r')
+order by nome;
+
+-- 17- Refaça. Selecione o nome, o cargo e o salário dos funcionários que tenham a letra ‘i’ em qualquer posição de seu nome. Resolva de duas maneiras.
+
+select nome, cargo, salario
+from tb_empregado
+#where nome like '%i%'
+#where regexp_like (nome, 'i') #pode ser também (i) e [i]
+where regexp_like (nome, 'I','c') #Case sensitive
+order by nome;
+
+/*18- Refaça. Selecione o nome, o cargo e o salário dos funcionários que tenham as letras ‘a’ e ‘i’ em
+qualquer posição de seu nome. A letra ‘a’ deve vir antes da letra ‘i’.*/
+
+select nome, cargo, salario
+from tb_empregado
+#where nome like '%a%i%' and not nome like '%i%a%i%' 
+where regexp_like (nome, 'a.*i') and not regexp_like (nome, 'i.*a.*i')
+#where regexp_like (nome, 'a[a-z]*i') and not regexp_like (nome, '[i].*[a].*[i]'
+order by nome;
+
+/*19- Refaça. Selecione o nome, o cargo e o salário dos funcionários que tenham as letras ‘i’ e ‘a’ em
+qualquer posição de seu nome. A letra ‘i’ deve vir antes da letra ‘a’.*/
+
+select nome, cargo, salario
+from tb_empregado
+#where nome like '%i%a%' and not nome like '%a%i%a%' 
+#where regexp_like (nome, 'i.*a') and not regexp_like (nome, 'a.*i.*a')
+where regexp_like (nome, 'i[a-z]*a') and not regexp_like (nome, '[a].*[i].*[a]')
+order by nome;
+
+/* 20- Refaça. Selecione o nome, o cargo e o salário dos funcionários que tenham as letras ‘a’ e ‘i’ em
+qualquer posição de seu nome. Nesta solução, não importa qual letra vem primeiro. Resolva de duas
+maneiras. (Numa solução use o operador lógico “or” e na outra, o operador lógico “and” )*/
+
+select nome, cargo, salario
+from tb_empregado
+#where nome like '%a%i%' or nome like '%i%a%' 
+where regexp_like (nome, 'a') and regexp_like (nome, 'i') # pode ter () e [] no 'a' e no 'i'
+order by nome;
+
+#- Exercícios:
+#1- Padrão de número de telefone com oito dígitos. Resolva de duas formas
+
+select '12345678' regexp ('^[0-9]{8}$') as Teste;
+select '12345678' regexp ('^\\d{8}$') as Teste;
+select '12345678' rlike ('^\\d{8}$') as Teste;
+select regexp_like ( '12345678','^\\d{8}$') as Teste;
+
+#2- Padrão de número de telefone com oito dígitos ou com nove dígitos. Resolva de duas formas.
+
+select '123456789' regexp ('^[0-9]{8}$') || '123456789'regexp ('^[0-9]{9}$') as Teste; #é pra dar verdadeiro
+select '123456789' regexp ('^[0-9]{8,9}$') as Teste; #é pra dar verdadeiro
+select '1234567' regexp ('^[0-9]{8,9}$') as Teste; #é pra dar falso
+select '1234567890' regexp ('^\\d{8,9}$') as Teste;  #é pra dar falso
+select '12345678' regexp ('^\\d{8,9}$') as Teste; #é pra dar verdadeiro
+select '123456789' rlike ('^\\d{8,9}$') as Teste; #é pra dar verdadeiro
+select '1234567' rlike ('^\\d{8,9}$') as Teste; #é pra dar falso
+select regexp_like ( '1234567890','^\\d{8,9}$') as Teste; #é pra dar falso
+
+/*3- Padrão de número de telefone com oito dígitos ou com nove dígitos. E o primeiro dígito não pode ser
+zero. Testar com: a12345678 (falso)*/
+
+select '01234567' regexp ('^[1-9][0-9]{7,8}$') as Teste;  #é pra dar falso == [1-9] = qq número de 1 a 9, [0-9]{7,8} = 7 ou 8 números de 0 a 9
+select '01234567' regexp ('^[1-9]\\d{7,8}$') as Teste; #é pra dar falso
+select 'a12345678' regexp ('^\\d{8,9}$') as Teste;  #é pra dar falso
+
+/*4- Padrão de número de telefone separado com hífen. Com um hífen antes dos quatro últimos dígitos.
+Resolva de duas formas.*/
+
+select '12345-6789' regexp ("^[1-9][1-9]{3,4}-[0-9]{4}$") as Teste;
+select '123456789' regexp ("^[1-9][1-9]{3,4}-{0,1}[0-9]{4}$") as Teste; # hífen não obrigatório
+select '12345-6789' regexp ('^[1-9][1-9]{3,4}-[0-9]{4}$') as Teste; #aspas duplas também funciona
+select '(61) 3202-1797' regexp ('\\S[1-9][0-9]\\S\\s[1-9][0-9]{3,4}-{0,1}[0-9]{4}')  as Teste;
+
+/*5- A senha deve ter no mínimo cinco e no máximo dez caracteres. Pode ser letra minúscula, maiúscula,
+dígito e caractere sublinhado. Resolva de duas formas.*/
+
+select 'xHa9dhadI_' regexp ('\\w{5,10}$') as Teste; #verdadeiro
+select 'xHa9_' regexp ('\\w{5,10}$') as Teste; #verdadeiro
+select 'xHa9_g7' regexp ('\\w{5,10}$') as Teste; #verdadeiro
+select 'xHa' regexp ('\\w{5,10}$') as Teste; #falso
+select 'xHa9dhadI_32fdfadsas' regexp ("\\w{5,10}$") as Teste; #falso
+select 'ab' regexp ('\\w{5,10}$') as Teste; #falso
+select 'ab12' regexp ('\\w{5,10}$') as Teste; #falso
+select ', AB+12' regexp ('\\w{5,10}$') as Teste; #falso
+select 'abcABC123_123' regexp ('\\w{5,10}$') as Teste; #verdadeiro
+
+/*6- A senha deve ter no mínimo cinco e no máximo dez caracteres. Podendo ser letras minúsculas, maiúsculas
+e dígitos. Neste exercício, não aceita o caractere sublinhado.*/
+
+select 'xHa9dhadI_' regexp ('\\w[^_]{5,10}$') as Teste; #falso
+select 'xHa9dhadI' regexp ('\\w[^_]{5,10}$') as Teste; #verdadeiro
+select 'xHa9dhadI_' regexp ('^[a-z0-9]{5,10}$') as Teste; #falso
+select 'xHa9dhadI' regexp ('^[a-z0-9]{5,10}$') as Teste; #verdadeiro
+
+#7- Aceitar as horas neste formato: Sintaxe: ddhdd Exemplo: 21h37
+
+select '21h37' regexp ('[0-9]{2}h[0-9]{2}') as Teste; #verdadeiro
+select '21h37' regexp ('\\d{2}h\\d{2}') as Teste; #verdadeiro
+select '21 h 37' regexp ('\\d{2}h\\d{2}') as Teste; #falso
+
+/*8- Aceitar as horas no formato anterior usando uma versão mais precisa. 2 maneiras.
+Não aceite os valores inconsistentes para horas e minutos.*/
+
+select '33h12' regexp ('([0-1]\\d|[2][0-3])h[0-5]\\d') as Teste; #falso
+select '22h72' regexp ('([0-1]\\d|[2][0-3])h[0-5]\\d') as Teste; #falso
+select '00h72' regexp ('([0-1]\\d|[2][0-3])h[0-5]\\d') as Teste; #falso
+select '29h30' regexp ('([0-1]\\d|[2][0-3])h[0-5]\\d') as Teste; #falso
+select '17h12' regexp ('([0-1]\\d|[2][0-3])h[0-5]\\d') as Teste; #verdadeiro
+select '23h12' regexp ('([0-1]\\d|[2][0-3])h[0-5]\\d') as Teste; #verdadeiro
+
+/*9- Aceitar o nome de uma variável que comece por letra maiúscula ou minúscula e sublinhado e depois pode
+ter letra maiúscula ou minúscula, sublinhado e dígito.*/
+
+select 'AbC123_' regexp ('^([a-z_])\\w*') as Teste; #verdadeiro
+select 'abC123_' regexp ('^([a-z_])\\w*') as Teste; #verdadeiro
+select '_bC123_' regexp ('^([a-z_])\\w*') as Teste; #verdadeiro
+select '1bC123_' regexp ('^([a-z_])\\w*') as Teste; #falso
+select '_bC123_' regexp ('^([a-z_])[a-z0-9_]') as Teste; #verdadeiro
+
+/*10- Aceitar o nome de uma variável segundo o compilador Java. O primeiro caractere da variável Java
+pode ser uma letra maiúscula, uma letra minúscula, um cifrão “$” ou um sublinha “_”. E a partir
+do segundo caractere da variável Java, além de qualquer um desses quatro caracteres anteriores
+pode ser também o dígito. Resolva de duas maneiras.*/
+
+select '_bC123_' regexp ('^([a-z_$])[\\w$]*$') as Teste; #verdadeiro
+select '$bC123$_' regexp ('^([a-z_$])[\\w$]*$') as Teste; #verdadeiro 
+select 'AbC123$_' regexp ('^([a-z_$])[0-9a-z_$]*$') as Teste; #verdadeiro - sem usar a classe pré-definida de carcateres
+select '1bC123$_' regexp ('^([a-z_$])[0-9a-z_$]*$') as Teste; #falso - sem usar a classe pré-definida de carcateres
+
+#11- Aceitar o CEP (correios) com este padrão: 99999-999, o primeiro dígito não pode ser zero. De 2 maneiras.
+
+select '70222-330' regexp ("^[1-9]\\d{4}-\\d{3}$") as Teste; #verdadeiro
+select '70333-990' regexp ("^[1-9][0-9]{4}-[0-9]{3}$") as Teste; #verdadeiro
+select '00875-110' regexp ("^[1-9][0-9]{4}-[0-9]{3}$") as Teste; #falso
+
+/*12- Aceitar o RA do UniCEUB de vocês começando pelas letras maiúsculas “R” e “A” e faça pelo menos
+mais uma crítica. Por exemplo, o primeiro dígito tem que ser 2 (referente ao início do ano 2000).*/
+
+select 'RA2193456/9' regexp ('^RA2[0-9]{6}/\\d') as RA;
+select 'RA2384735/9' regexp ('^RA2\\d{6}/\\d') as RA;
+
+#13- Aceitar o conjunto dos números naturais. Resolva de duas formas.
+
+select '' regexp ('\\d+$'); # falso - tem que ter pelo menos 1 dígito, então será o + pq é 1 ou mais dígitos, o * aceita o vazio
+select '1a' regexp ('\\d+$'); #falso
+select '1' regexp ('\\d+$'); #verdadeiro
+select '1197398120' regexp ('\\d+$'); #verdadeiro
+
+#14- Aceitar o conjunto dos números inteiros.
+
+select '1197398120' regexp ('-\\d+|\\d+$'); #verdadeiro
+select -197398120 regexp ('-\\d+|\\d+$'); #verdadeiro
+select '2347a' regexp ('-\\d+|\\d+$'); #falso
+select '-' regexp ('-\\d+|\\d+$'); #falso
+select -197398120 regexp ('-?\\d+$'); #verdadeiro a ? representa que pode haver 0 ou 1 ocorrência do símbolo à esquerda
+select 197398120 regexp ('-?\\d+$'); #verdadeiro
+select +197398120 regexp ('[+-]?\\d+$'); #verdadeiro - para aceitar os sinais de + ou de -
+
+#15- Aceitar o conjunto dos números reais no padrão d.d ou com + e - na frente
+
+select 197.398 regexp ('[+-]?\\d+[.]\\d+$') as Teste; #verdadeiro
+select +197.398 regexp ('[+-]?\\d+[.]\\d+$') as Teste; #verdadeiro
+select -197.398 regexp ('[+-]?\\d+[.]\\d+$') as Teste; #verdadeiro
+
+#16- Aceitar o conjunto dos números reais nos padrões: d e d.d
+
+select 9 regexp ('[+-]?\\d+[.]\\d+|\\d+$') as Teste; #verdadeiro
+select 928374 regexp ('[+-]?\\d+[.]\\d+|\\d+$') as Teste; #verdadeiro
+select 9.723 regexp ('[+-]?\\d+[.]\\d+|\\d+$') as Teste; #verdadeiro
+select .32 regexp ('[+-]?\\d+[.]\\d+|\\d+$') as Teste; #verdadeiro
+select 'a32' regexp ('[+-]?\\d+[.]\\d+|\\d+$') as Teste; #verdadeiro - ta errado isso, por que está verdadeiro?
+
+#17- Aceitar o conjunto dos números reais nos padrões: d, d.d, .d e d.
+
+select ',32' regexp ('[+-]?\\d+[.,]\\d+|\\d+$') as Teste; #verdadeiro - mas acho que tá errado pq tá \\d+, não há dígito depois da vírgula 
+#e + significa que tem que ter pelo menos um dígito
+select '32,32' regexp ('[+-]?\\d+[.,]\\d+|\\d+$') as Teste; #verdadeiro
+select '84.32' regexp ('[+-]?\\d+[.,]\\d+|\\d+$') as Teste; #verdadeiro
+select '2' regexp ('[+-]?\\d+[.,]\\d+|\\d+$') as Teste; #verdadeiro
+select '-,32' regexp ('[+-]?\\d+[.,]\\d+|\\d+$') as Teste; #verdadeiro
+select +1 regexp ('[+-]?\\d+[.,]\\d+|\\d+$') as Teste; #verdadeiro
+select 'hkdhlas' regexp ('[+-]?\\d+[.,]\\d+|\\d+$') as Teste; #falso
